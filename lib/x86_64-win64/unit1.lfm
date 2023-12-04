@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 311
+  Left = 280
   Height = 224
-  Top = 198
+  Top = 191
   Width = 320
   Caption = 'Form1'
   ClientHeight = 224
@@ -10,13 +10,14 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
-  LCLVersion = '1.6.4.0'
+  LCLVersion = '2.2.6.0'
   object Image2: TImage
     Left = 0
     Height = 224
     Top = 0
     Width = 320
     Align = alClient
+    OnClick = Image2Click
     Stretch = True
     Transparent = True
   end
@@ -27,6 +28,7 @@ object Form1: TForm1
     Width = 34
     Caption = 'Label1'
     ParentColor = False
+    OnClick = Label1Click
   end
   object Image1: TImage
     Left = 328
@@ -693,10 +695,10 @@ object Form1: TForm1
   object UpdateTimer: TTimer
     Interval = 10
     OnTimer = Update
-    left = 320
+    Left = 320
   end
   object Timer2: TTimer
     OnTimer = Timer2Timer
-    left = 352
+    Left = 352
   end
 end

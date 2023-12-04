@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Compiler Value="C:\lazarus\fpc\3.0.2\bin\x86_64-win64\fpc.exe" Date="1247523051"/>
-  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -WG -l -vewnhibq -FiE:\LZPrj\lib\x86_64-win64 -FuC:\lazarus\lcl\units\x86_64-win64\win32 -FuC:\lazarus\lcl\units\x86_64-win64 -FuC:\lazarus\components\lazutils\lib\x86_64-win64 -FuC:\lazarus\packager\units\x86_64-win64 -FuE:\LZPrj\ -FUE:\LZPrj\lib\x86_64-win64\ -dLCL -dLCLwin32 project1.lpr"/>
+  <Compiler Value="C:\lazarus\fpc\3.2.2\bin\x86_64-win64\fpc.exe" Date="1449427374"/>
+  <Params Value=" -MObjFPC -Scghi -O1 -gw2 -godwarfsets -gl -WG -l -vewnhibq &quot;-FiC:\Users\Vadik\Desktop\Pascal Sonic\lib\x86_64-win64&quot; -FuC:\lazarus\lcl\units\x86_64-win64\win32 -FuC:\lazarus\lcl\units\x86_64-win64 -FuC:\lazarus\components\freetype\lib\x86_64-win64 -FuC:\lazarus\components\lazutils\lib\x86_64-win64 -FuC:\lazarus\packager\units\x86_64-win64 &quot;-FuC:\Users\Vadik\Desktop\Pascal Sonic\&quot; &quot;-FUC:\Users\Vadik\Desktop\Pascal Sonic\lib\x86_64-win64\&quot; &quot;-FEC:\Users\Vadik\Desktop\Pascal Sonic\&quot; &quot;-oC:\Users\Vadik\Desktop\Pascal Sonic\project1.exe&quot; -dLCL -dLCLwin32 project1.lpr"/>
+  <Complete Value="False"/>
 </CONFIG>
