@@ -7,11 +7,13 @@
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="game"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
+      <Icon Value="0"/>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -37,6 +39,26 @@
         <Filename Value="player.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Player"/>
+      </Unit>
+      <Unit>
+        <Filename Value="rectanglecollider.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="RectangleCollider"/>
+      </Unit>
+      <Unit>
+        <Filename Value="collidebleimage.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="unitCollidebleImage"/>
+      </Unit>
+      <Unit>
+        <Filename Value="unitterrain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="unitTerrain"/>
+      </Unit>
+      <Unit>
+        <Filename Value="unitsensor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="unitSensor"/>
       </Unit>
     </Units>
   </ProjectOptions>

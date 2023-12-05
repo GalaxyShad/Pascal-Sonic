@@ -5,11 +5,13 @@ unit Player;
 interface
 
 uses
-  Classes, Math, raylib, fgl;
+  Classes, Math, raylib, fgl, unitSensor;
 
 type
 objPlayer = class
 private
+   sensor:                      unitSensor.Sensor;
+
    // Texture
    texture:                     TTexture2D;
    animationFrameRect:          TRectangle;
@@ -17,7 +19,6 @@ private
    // Animation
    animation_direction:         integer;
    animation:                   string;
-   image_scale:                 integer;
    // Frame
    frame:                       integer;
    float_frame:                 real;
@@ -28,23 +29,22 @@ private
    acc, frc, topsp, dec:        real;
    // ==Y== //
    gravity, jump:               real;
-   ground: boolean;
+   ground:                      boolean;
 public
-   constructor Create(_x: integer; _y: integer; _texture: TTexture2D); //Create event
-   procedure   Update();
+   constructor Create(_x: integer; _y: integer; _texture: TTexture2D; _sensor: unitSensor.Sensor); //Create event
+   procedure Update();
    procedure PlayerSetAnimation(sp_frame:real; f_frame, l_frame: integer);
    procedure PlayerAnimation();
    procedure PlayerMovement();
    procedure PlayerGamePlay();
    procedure Draw();
-
-
 end;
 
 implementation
 
-constructor objPlayer.Create(_x:integer; _y:integer; _texture: TTexture2D);
+constructor objPlayer.Create(_x:integer; _y:integer; _texture: TTexture2D; _sensor: unitSensor.Sensor);
 begin
+     sensor := _sensor;
      texture := _texture;
      animationFrameRect := RectangleCreate(0, 0, 64, 64);
 
@@ -77,6 +77,8 @@ procedure objPlayer.Draw();
 begin
      animationFrameRect := RectangleCreate(64 * frame, 0, 64 * Sign(animation_direction), 64);
      DrawTextureRec(texture, animationFrameRect, Vector2Create(x-32, y-32), WHITE);
+
+     sensor.Draw();
 end;
 
 procedure objPlayer.PlayerSetAnimation(sp_frame:real; f_frame, l_frame: integer);
@@ -106,89 +108,74 @@ end;
 
 procedure objPlayer.PlayerMovement();
 var i,j: integer;
+var test: real;
 begin
-     //==X==//
-     if (IsKeyDown(KEY_LEFT)) then
-        begin
-             if (xsp > 0) then
-                begin
-                     xsp := xsp - dec;
-                end
-              else if xsp > -topsp then
-                begin
-                     xsp := xsp - acc;
-                end
-        end
-    else if (IsKeyDown(KEY_RIGHT)) then
-        begin
-             if (xsp < 0) then
-                begin
-                     xsp := xsp + dec;
-                end
-              else if xsp < topsp then
-                begin
-                     xsp := xsp + acc;
-                end;
-        end
-   else xsp := xsp-Min(abs(xsp), frc) * sign(xsp);
 
-   x := x + xsp;
-   y := y + ysp;
+  if (IsKeyDown(KEY_LEFT)) then
+  begin
+      if (xsp > 0)            then xsp := xsp - dec
+      else if (xsp > -topsp)  then xsp := xsp - acc;
+  end
+  else if (IsKeyDown(KEY_RIGHT)) then
+  begin
+      if (xsp < 0)            then xsp := xsp + dec
+      else if (xsp < topsp)   then xsp := xsp + acc;
+  end
+  else
+     xsp := xsp-Min(abs(xsp), frc) * sign(xsp);
 
-   // ==Y== //
-   // Gravity and Block Collisions
-   // Collsion Y
-   //for i:=0 to max_tiles do
-   //    begin
-   //         if ((x+23 >= solid_array[i].x) and (x+23 < solid_array[i].x+solid_array[i].w))
-   //         or ((x+41 >= solid_array[i].x) and (x+41 < solid_array[i].x+solid_array[i].w)) then
-   //              begin
-   //                   if (y+52 < solid_array[i].y) or  (y+52 > solid_array[i].y+solid_array[i].h)then
-   //                   begin
-   //                           ground:=false;
-   //
-   //                   end
-   //                   else  if (y+52 >= solid_array[i].y) and  (y+52 < solid_array[i].y+solid_array[i].h) then
-   //                   begin
-   //                           ground := true;
-   //                           ysp:=0;
-   //                           y:= solid_array[i].y-52;
-   //                           break;
-   //                   end;
-   //
-   //              end
-   //               else
-   //                   begin
-   //                           ground:=false;
-   //                   end;
-   //
-   //    end;
-   //for j := 0 to max_tiles do
-   //    begin
-   //        if (y+32-4 >= solid_array[j].y) and (y+32-4 < solid_array[j].y+solid_array[j].h)  then
-   //           begin
-   //               if (x+42 >= solid_array[j].x) and (x+42 < solid_array[j].x+solid_array[j].w)    then
-   //                  begin
-   //                      if (xsp > 0) then xsp:=0;
-   //                      x:= solid_array[j].x-42;
-   //                  end;
-   //               if (x+22 > solid_array[j].x) and (x+22 <= solid_array[j].x+solid_array[j].w)    then
-   //                  begin
-   //                      if (xsp < 0) then xsp:=0;
-   //                      x:= solid_array[j].x+solid_array[j].w-22;
-   //                  end;
-   //           end;
-   //
-   //    end;
+  x := x + xsp;
+  y := y + ysp;
+
+  sensor.SetPosition(Vector2Create(x, y));
+
+  if (ground) then begin
+     while (sensor.IsCollidingBottom()) do begin
+         x += sin(sensor.GetAngle());
+         y -= cos(sensor.GetAngle());
+
+         sensor.SetPosition(Vector2Create(x, y));
+     end;
+
+     while (sensor.IsCollidingGround() and not sensor.IsCollidingBottom()) do begin
+         x -= sin(sensor.GetAngle());
+         y += cos(sensor.GetAngle());
+
+         sensor.SetPosition(Vector2Create(x, y));
+     end;
+
+
+     //sensor.CalculateAngle();
+     //WriteLn(sensor.CalculateAngle());
+
+     //if (IsKeyPressed(KEY_C)) then begin
+
+       test :=  sensor.CalculateAngle();
+       WriteLn(test);
+       sensor.SetAngle(test);
+
+     //end;
+
+
+     if (not sensor.IsCollidingGround()) then
+        ground := false;
+
+  end
+  else begin
+       if (sensor.IsCollidingBottom()) and (ysp > 0) then ground := true;
+  end;
+
+  if (IsKeyDown(KEY_D)) then begin
+   ysp := 0;
+   xsp := 0;
+   end;
+
 
    if not(ground) then
-      ysp := ysp+gravity;
+      ysp := ysp+gravity
+   else
+      ysp := 0;
 
-   if (y + 20 > GetRenderHeight()) then
-   begin
-        ground := true;
-        y := GetRenderHeight() - 20;
-   end;
 
 
    //Anim
@@ -204,6 +191,7 @@ begin
       animation_direction := 1;
    if xsp < 0 then
       animation_direction := -1;
+
 
 end;
 
