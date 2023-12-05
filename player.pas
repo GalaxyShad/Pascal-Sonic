@@ -130,15 +130,35 @@ begin
 
   sensor.SetPosition(Vector2Create(x, y));
 
+  while (sensor.IsCollidingLeft()) do begin
+     x += cos(sensor.GetAngle());
+     y += sin(sensor.GetAngle());
+
+     sensor.SetPosition(Vector2Create(x, y));
+  end;
+
+  while (sensor.IsCollidingRight()) do begin
+     x -= cos(sensor.GetAngle());
+     y -= sin(sensor.GetAngle());
+
+     sensor.SetPosition(Vector2Create(x, y));
+  end;
+
+
+
   if (ground) then begin
-     while (sensor.IsCollidingBottom()) do begin
+
+
+     while (sensor.IsCollisionMain()) do begin
          x += sin(sensor.GetAngle());
          y -= cos(sensor.GetAngle());
 
          sensor.SetPosition(Vector2Create(x, y));
      end;
 
-     while (sensor.IsCollidingGround() and not sensor.IsCollidingBottom()) do begin
+
+
+     while (sensor.IsCollidingGround() and not sensor.IsCollisionMain()) do begin
          x -= sin(sensor.GetAngle());
          y += cos(sensor.GetAngle());
 
@@ -152,6 +172,7 @@ begin
 
   end
   else begin
+       gsp := 0;
        sensor.SetAngle(0);
        if (sensor.IsCollidingBottom()) and (ysp > 0) then ground := true;
   end;

@@ -49,6 +49,11 @@ begin
   for i := 0 to 4 do begin
       terrain.Add(CollidebleImage.Create(Vector2Create(32*i, 200-8*i), imgBlock));
   end;
+
+  for i := 0 to 8 do begin
+      terrain.Add(CollidebleImage.Create(Vector2Create(0, 32*i), imgBlock));
+  end;
+
   terrain.Add(CollidebleImage.Create(Vector2Create(240, 110), LoadImage('./textures/loop.png')));
 
 

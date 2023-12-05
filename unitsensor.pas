@@ -170,8 +170,8 @@ begin
     for i := 0 to 20 do begin
        if (not foundRight) then begin
          sensorSlopeRight.SetPosition(Vector2Create(
-             position.x - (20+i) * Sin(angle) + 8 * Cos(angle),
-             position.y + (20+i) * Cos(angle) + 8 * Sin(angle)
+             position.x - (15+i) * Sin(angle) + 8 * Cos(angle),
+             position.y + (15+i) * Cos(angle) + 8 * Sin(angle)
          ));
 
          if (terrain.IsCollidingWith(sensorSlopeRight)) then foundRight := true;
@@ -179,8 +179,8 @@ begin
 
        if (not foundLeft) then begin
          sensorSlopeLeft.SetPosition(Vector2Create(
-             position.x - (20+i) * Sin(angle) - 8 * Cos(angle),
-             position.y + (20+i) * Cos(angle) - 8 * Sin(angle)
+             position.x - (15+i) * Sin(angle) - 8 * Cos(angle),
+             position.y + (15+i) * Cos(angle) - 8 * Sin(angle)
          ));
 
          if (terrain.IsCollidingWith(sensorSlopeLeft)) then foundLeft := true;
