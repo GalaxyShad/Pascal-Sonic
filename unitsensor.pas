@@ -71,7 +71,7 @@ begin
      sensorTop      := CollidebleImage.Create(position, _imgMaskSmall);
      sensorBottom   := CollidebleImage.Create(position, _imgMaskSmall);
 
-     sensorGround   := CollidebleImage.Create(position, _imgMaskMain);
+     sensorGround   := CollidebleImage.Create(position, _imgMaskSmall);
 
      sensorSlopeLeft := CollidebleImage.Create(position, _imgMaskSmall);
      sensorSlopeRight := CollidebleImage.Create(position, _imgMaskSmall);
@@ -107,20 +107,9 @@ begin
 
 
      sensorGround.SetPosition(Vector2Create(
-         position.x - 40 * Sin(angle),
-         position.y + 40 * Cos(angle)
+         position.x - 30 * Sin(angle),
+         position.y + 30 * Cos(angle)
      ));
-
-
-     //sensorSlopeRight.SetPosition(Vector2Create(
-     //    position.x - 60 * Sin(angle) + 8 * Cos(angle),
-     //    position.y + 60 * Cos(angle) + 8 * Sin(angle)
-     //));
-     //
-     //sensorSlopeLeft.SetPosition(Vector2Create(
-     //    position.x - 20 * Sin(angle) - 8 * Cos(angle),
-     //    position.y + 20 * Cos(angle) - 8 * Sin(angle)
-     //));
 end;
 
 function Sensor.GetPosition(): TVector2;
@@ -199,11 +188,13 @@ begin
     end;
 
     if (foundLeft and foundRight) then begin
-      //Exit(Vector2Angle(sensorSlopeLeft.GetPosition(), sensorSlopeRight.GetPosition()));
-      Exit(ArcTan2(sensorSlopeRight.GetPosition().y - sensorSlopeLeft.GetPosition().y, sensorSlopeRight.GetPosition().x - sensorSlopeLeft.GetPosition().x))
+      Exit(ArcTan2(
+       sensorSlopeRight.GetPosition().y - sensorSlopeLeft.GetPosition().y,
+       sensorSlopeRight.GetPosition().x - sensorSlopeLeft.GetPosition().x
+      ))
     end;
 
-    Exit(0);
+    Exit(angle);
 
 end;
 

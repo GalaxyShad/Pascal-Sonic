@@ -24,7 +24,7 @@ private
    float_frame:                 real;
 
    // Player Movement Variables
-   x, y, xsp, ysp:              real;
+   x, y, xsp, ysp, gsp:         real;
    // ==X== //
    acc, frc, topsp, dec:        real;
    // ==Y== //
@@ -59,6 +59,7 @@ begin
      float_frame           := 0;
 
      //===Speed===//
+     gsp                   := 0.0;
      xsp                   := 0.0;
      ysp                   := 0.0;
 
@@ -73,13 +74,7 @@ begin
      ground                := false;
 end;
 
-procedure objPlayer.Draw();
-begin
-     animationFrameRect := RectangleCreate(64 * frame, 0, 64 * Sign(animation_direction), 64);
-     DrawTextureRec(texture, animationFrameRect, Vector2Create(x-32, y-32), WHITE);
 
-     sensor.Draw();
-end;
 
 procedure objPlayer.PlayerSetAnimation(sp_frame:real; f_frame, l_frame: integer);
 begin
@@ -113,16 +108,22 @@ begin
 
   if (IsKeyDown(KEY_LEFT)) then
   begin
-      if (xsp > 0)            then xsp := xsp - dec
-      else if (xsp > -topsp)  then xsp := xsp - acc;
+      if (gsp > 0)            then gsp := gsp - dec
+      else if (gsp > -topsp)  then gsp := gsp - acc;
   end
   else if (IsKeyDown(KEY_RIGHT)) then
   begin
-      if (xsp < 0)            then xsp := xsp + dec
-      else if (xsp < topsp)   then xsp := xsp + acc;
+      if (gsp < 0)            then gsp := gsp + dec
+      else if (gsp < topsp)   then gsp := gsp + acc;
   end
   else
-     xsp := xsp-Min(abs(xsp), frc) * sign(xsp);
+     gsp := gsp - min(abs(gsp), frc) * sign(gsp);
+
+  if (ground) then begin
+     xsp := gsp * cos(sensor.GetAngle());
+     ysp := gsp * sin(sensor.GetAngle());
+  end;
+
 
   x := x + xsp;
   y := y + ysp;
@@ -144,24 +145,14 @@ begin
          sensor.SetPosition(Vector2Create(x, y));
      end;
 
-
-     //sensor.CalculateAngle();
-     //WriteLn(sensor.CalculateAngle());
-
-     //if (IsKeyPressed(KEY_C)) then begin
-
-       test :=  sensor.CalculateAngle();
-       WriteLn(test);
-       sensor.SetAngle(test);
-
-     //end;
-
+     sensor.SetAngle(sensor.CalculateAngle());
 
      if (not sensor.IsCollidingGround()) then
         ground := false;
 
   end
   else begin
+       sensor.SetAngle(0);
        if (sensor.IsCollidingBottom()) and (ysp > 0) then ground := true;
   end;
 
@@ -179,17 +170,17 @@ begin
 
 
    //Anim
-   if xsp = 0 then
+   if gsp = 0 then
       animation := 'idle'
-   else if (abs(xsp) > 0) and (abs(xsp) < 6) then
+   else if (abs(gsp) > 0) and (abs(gsp) < 6) then
       animation := 'walking'
    else
        animation := 'run';
 
    //Scale
-   if xsp > 0 then
+   if gsp > 0 then
       animation_direction := 1;
-   if xsp < 0 then
+   if gsp < 0 then
       animation_direction := -1;
 
 
@@ -208,6 +199,14 @@ procedure objPlayer.Update();
 begin
      PlayerMovement();
      PlayerGamePlay();
+end;
+
+procedure objPlayer.Draw();
+begin
+     animationFrameRect := RectangleCreate(64 * frame, 0, 64 * Sign(animation_direction), 64);
+     DrawTexturePro(texture, animationFrameRect, RectangleCreate(x, y, 64, 64), Vector2Create(32, 32), sensor.GetAngle() * RAD2DEG, WHITE);
+
+     //sensor.Draw();
 end;
 
 end.

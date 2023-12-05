@@ -49,7 +49,7 @@ begin
   for i := 0 to 4 do begin
       terrain.Add(CollidebleImage.Create(Vector2Create(32*i, 200-8*i), imgBlock));
   end;
-  terrain.Add(CollidebleImage.Create(Vector2Create(240, 110), LoadImage('./textures/ground.png')));
+  terrain.Add(CollidebleImage.Create(Vector2Create(240, 110), LoadImage('./textures/loop.png')));
 
 
   sensor := unitSensor.Sensor.Create(terrain, Vector2Create(64, 64), imgMaskMain, imgMaskSmall);
