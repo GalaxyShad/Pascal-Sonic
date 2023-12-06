@@ -67,11 +67,8 @@ begin
   // Main game loop
   while not WindowShouldClose() do
   begin
-    // Update
-    // TODO: Update your variables here
-    plr.PlayerAnimation();
-    plr.PlayerMovement();
-    plr.PlayerGamePlay();
+
+    plr.Update();
 
     mpos := GetMousePosition();
     pinkStar.SetPosition(mpos);
