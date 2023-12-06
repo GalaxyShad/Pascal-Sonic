@@ -33,8 +33,13 @@ private
    // ==Y== //
    gravity, jump:               real;
    ground:                      boolean;
+
+   showSensors:                 boolean;
 public
    constructor Create(_x: integer; _y: integer; _texture: TTexture2D; _sensor: unitSensor.Sensor); //Create event
+
+   function GetPosition(): TVector2;
+
    procedure Update();
    procedure PlayerSetAnimation(sp_frame:real; f_frame, l_frame: integer);
    procedure PlayerAnimation();
@@ -77,9 +82,14 @@ begin
      gravity               := 0.21875;
      jump                  := 6.5;
      ground                := false;
+
+     showSensors           := false;
 end;
 
-
+function objPlayer.GetPosition(): TVector2;
+begin
+     Exit(Vector2Create(x, y));
+end;
 
 procedure objPlayer.PlayerSetAnimation(sp_frame:real; f_frame, l_frame: integer);
 begin
@@ -97,13 +107,9 @@ begin
       //SetAnimation
 
      if (animation = 'idle') then  PlayerSetAnimation(0,71,71);
-     if      (animation = 'walking')  then  PlayerSetAnimation(0.1+abs(xsp/25),0,6)
-     else if (animation = 'walking1') then  PlayerSetAnimation(0.1+abs(xsp/25),7,12)
-     else if (animation = 'walking2') then  PlayerSetAnimation(0.1+abs(xsp/25),13,18)
-     else if (animation = 'walking3') then  PlayerSetAnimation(0.1+abs(xsp/25),19,24)
-     else if (animation = 'walking4') then  PlayerSetAnimation(0.1+abs(xsp/25),25,30)
-     else if (animation = 'run')      then  PlayerSetAnimation(0.1+abs(xsp/25),32,35)
-     else if (animation = 'jump')     then  PlayerSetAnimation(0.1+abs(xsp/25),149,153);
+     if      (animation = 'walking')  then  PlayerSetAnimation(0.1+abs(gsp/25),0,6)
+     else if (animation = 'run')      then  PlayerSetAnimation(0.1+abs(gsp/25),32,35)
+     else if (animation = 'jump')     then  PlayerSetAnimation(0.1+abs(gsp/25),149,153);
 
 end;
 
@@ -115,24 +121,30 @@ var
    angleDeg: single;
 begin
 
-  if (IsKeyDown(KEY_LEFT)) then
-  begin
-      if (gsp > 0)            then gsp := gsp - dec
-      else if (gsp > -topsp)  then gsp := gsp - acc;
-  end
-  else if (IsKeyDown(KEY_RIGHT)) then
-  begin
-      if (gsp < 0)            then gsp := gsp + dec
-      else if (gsp < topsp)   then gsp := gsp + acc;
-  end
-  else
-     gsp := gsp - min(abs(gsp), frc) * sign(gsp);
-
   if (ground) then begin
-     xsp := gsp * cos(sensor.GetAngle());
-     ysp := gsp * sin(sensor.GetAngle());
-  end;
+      gsp += 0.125 * sin(sensor.GetAngle());
 
+      if (IsKeyDown(KEY_LEFT)) then
+      begin
+          if (gsp > 0)            then gsp := gsp - dec
+          else if (gsp > -topsp)  then gsp := gsp - acc;
+      end
+      else if (IsKeyDown(KEY_RIGHT)) then
+      begin
+          if (gsp < 0)            then gsp := gsp + dec
+          else if (gsp < topsp)   then gsp := gsp + acc;
+      end
+      else
+         gsp := gsp - min(abs(gsp), frc) * sign(gsp);
+
+      if (ground) then begin
+         xsp := gsp * cos(sensor.GetAngle());
+         ysp := gsp * sin(sensor.GetAngle());
+      end;
+  end else begin
+      if (IsKeyDown(KEY_LEFT)) then xsp -= acc * 2
+      else if (IsKeyDown(KEY_RIGHT)) then  xsp += acc * 2;
+  end;
 
   x += xsp;
   y += ysp;
@@ -187,7 +199,6 @@ begin
 
   end
   else begin
-       gsp := 0;
        sensor.SetAngle(0);
 
        while ((ysp < 0) and (sensor.IsCollidingTop())) do begin
@@ -284,7 +295,10 @@ begin
      animationFrameRect := RectangleCreate(64 * frame, 0, 64 * Sign(animation_direction), 64);
      DrawTexturePro(texture, animationFrameRect, RectangleCreate(x, y, 64, 64), Vector2Create(32, 32), sensor.GetAngle() * RAD2DEG, WHITE);
 
-     sensor.Draw();
+     if (IsKeyPressed(KEY_D)) then showSensors := not showSensors;
+
+     if showSensors then sensor.Draw();
+
 end;
 
 end.

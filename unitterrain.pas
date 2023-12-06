@@ -36,7 +36,7 @@ function Terrain.IsCollidingWith(other: CollidebleImage): Boolean;
 var i: integer;
 begin
      for i := 0 to listSolidObjects.Count-1 do begin
-       if (listSolidObjects.Items[i].IsCollidingWithOther(other)) then
+       if (other.IsCollidingWithOther(listSolidObjects.Items[i])) then
           Exit(true);
      end;
      Exit(false);
