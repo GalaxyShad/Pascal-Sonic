@@ -41,11 +41,14 @@ type
     float_frame: real;
 
     // Player Movement Variables
-    x, y, xsp, ysp, gsp: real;
+    x, y, xsp, ysp, gsp: single;
     // ==Y== //
     ground: boolean;
 
     showSensors: boolean;
+
+    sndJump: TSound;
+    sndRoll: TSound;
 
     {------------------------------------------------------------------------}
 
@@ -65,8 +68,14 @@ type
     function SlopeDecceleration: single;
 
   public
-    constructor Create(_x: integer; _y: integer; _texture: TTexture2D;
-      _sensor: unitSensor.Sensor); // Create event
+    constructor Create(
+      _x: integer;
+      _y: integer;
+      _texture: TTexture2D;
+      _sensor: unitSensor.Sensor;
+      _sndJump: TSound;
+      _sndRoll: TSound
+    );
 
     function GetPosition(): TVector2;
 
@@ -75,6 +84,47 @@ type
   end;
 
 implementation
+
+constructor objPlayer.Create(
+  _x: integer;
+  _y: integer;
+  _texture: TTexture2D;
+  _sensor: unitSensor.Sensor;
+  _sndJump: TSound;
+  _sndRoll: TSound
+);
+begin
+  sndJump := _sndJump;
+  sndRoll := _sndRoll;
+
+  sensor := _sensor;
+  texture := _texture;
+  animationFrameRect := RectangleCreate(0, 0, 64, 64);
+
+  //===Positions===//
+  x := _x; //set player x
+  y := _y; //set player y
+
+  // ===Animation===//
+  animation := 'walking';
+  action := 'normal';
+
+  animation_direction := 1;
+  frame := 0;
+  float_frame := 0;
+
+  //===Speed===//
+  gsp := 0.0;
+  xsp := 0.0;
+  ysp := 0.0;
+
+  ground := False;
+
+  showSensors := False;
+end;
+
+{------------------------------------------------------------------------------}
+{------------------------------------------------------------------------------}
 
 procedure objPlayer.Landing;
 var
@@ -262,6 +312,8 @@ begin
     action := 'jump';
 
     ground := False;
+
+    PlaySound(sndJump);
   end;
 
   if (action = 'roll') then
@@ -271,7 +323,8 @@ begin
   end
   else if (action = 'normal') and IsKeyDown(KEY_DOWN) then
   begin
-    action := 'roll'
+    action := 'roll';
+    PlaySound(sndRoll);
   end;
 
 end;
@@ -309,35 +362,6 @@ begin
   y += ysp;
 
   sensor.SetPosition(Vector2Create(x, y));
-end;
-
-constructor objPlayer.Create(_x: integer; _y: integer; _texture: TTexture2D;
-  _sensor: unitSensor.Sensor);
-begin
-  sensor := _sensor;
-  texture := _texture;
-  animationFrameRect := RectangleCreate(0, 0, 64, 64);
-
-  //===Positions===//
-  x := _x; //set player x
-  y := _y; //set player y
-
-  // ===Animation===//
-  animation := 'walking';
-  action := 'normal';
-
-  animation_direction := 1;
-  frame := 0;
-  float_frame := 0;
-
-  //===Speed===//
-  gsp := 0.0;
-  xsp := 0.0;
-  ysp := 0.0;
-
-  ground := False;
-
-  showSensors := False;
 end;
 
 function objPlayer.GetPosition(): TVector2;

@@ -27,6 +27,9 @@ var
   imgBlock: TImage;
   imgMaskMain: TImage;
   imgMaskSmall: TImage;
+
+  sndPlayerJump: TSound;
+  sndPlayerRoll: TSound;
 const
   screenWidth = 426;
   screenHeight = 240;
@@ -36,6 +39,9 @@ const
 begin
   // Initialization
   InitWindow(screenWidth, screenHeight, 'Pascal Sonic');
+  InitAudioDevice();
+
+  SetMasterVolume(0.25);
 
   camera.target := Vector2Create(32, 32);
   camera.offset := Vector2Create(screenWidth / 2, screenHeight / 2);
@@ -50,27 +56,24 @@ begin
 
   texSonic := LoadTexture('./textures/Sonic 3 - Sonic.png');
 
+
+  sndPlayerJump := LoadSound('./sounds/jump.wav');
+  sndPlayerRoll := LoadSound('./sounds/roll.wav');
+
   //imgBlock := LoadImage('./textures/solid_obj.png');
   imgMaskMain := LoadImage('./textures/mask-main.png');
   imgMaskSmall := LoadImage('./textures/mask-small.png');
 
   terrain := unitTerrain.Terrain.Create;
 
-  //for i := 0 to 4 do begin
-  //    terrain.Add(CollidebleImage.Create(Vector2Create(32*i, 200-8*i), imgBlock));
-  //end;
-
-  //for i := 0 to 8 do begin
-  //    terrain.Add(CollidebleImage.Create(Vector2Create(0, 32*i), imgBlock));
-  //end;
-
-  //terrain.Add(CollidebleImage.Create(Vector2Create(240, 110), LoadImage('./textures/loop.png')));
   terrain.Add(CollidebleImage.Create(Vector2Create(1024, 1024),
     LoadImage('./textures/big-lvl.png')));
 
   sensor := unitSensor.Sensor.Create(terrain, Vector2Create(64, 64),
     imgMaskMain, imgMaskSmall);
-  plr := objPlayer.Create(32, 32, texSonic, sensor);
+
+
+  plr := objPlayer.Create(32, 32, texSonic, sensor, sndPlayerJump, sndPlayerRoll);
 
   angle := 0;
 
