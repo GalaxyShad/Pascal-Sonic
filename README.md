@@ -9,7 +9,7 @@
 </div>
 
 ## How to run?
-You can download a pre-built version of the game from the releases section. Alternatively, you can build it yourself by following the instructions below.
+You can download a pre-built version of the game from the [Releases Section](https://github.com/GalaxyShad/Pascal-Sonic/releases). Alternatively, you can build it yourself by following the instructions below.
 
 ## How to build?
 1. Clone this repository:
