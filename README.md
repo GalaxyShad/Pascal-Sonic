@@ -1,5 +1,3 @@
-# Pascal-Sonic
-
 <div align="center">
   <p align="center">
     <h1 align="center" style="color:red;">Pascal-Sonic</h1>
@@ -32,6 +30,11 @@ You can download a pre-built version of the game from the [Releases Section](htt
 * Sound effects
 * Spindash
 
+## Controls
+* ***Arrow keys*** - movement
+* ***Z key*** - jump/charge spindash
+* ***D key*** - enable/disable drawing of collision masks
+
 ## How to create your own levels
 You can create your own levels by editing the `textures/big-lvl.png` file. Remember, a pixel is considered collideable if its alpha value is 0.
 
@@ -39,4 +42,5 @@ You can create your own levels by editing the `textures/big-lvl.png` file. Remem
 Cuz challenge 😎
 
 ## License
-Sonic The Hedgehog is a trademark of SEGA. Please do not use any images containing Sonic for commercial purposes. The source code is released under the MIT license.
+Sonic The Hedgehog is a trademark of SEGA. Please do not use any images containing Sonic for commercial purposes. 
+The source code is released under the [MIT license](https://github.com/GalaxyShad/Pascal-Sonic/blob/main/LICENSE).
