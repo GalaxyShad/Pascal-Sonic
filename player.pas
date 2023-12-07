@@ -41,6 +41,8 @@ type
     animation: string;
     action: string;
 
+    spinrev: single;
+
     // Frame
     frame: integer;
     float_frame: real;
@@ -55,6 +57,8 @@ type
 
     sndJump: TSound;
     sndRoll: TSound;
+    sndSpinCharge: TSound;
+    sndSpinRelease: TSound;
 
     {------------------------------------------------------------------------}
 
@@ -82,7 +86,9 @@ type
       _texture: TTexture2D;
       _sensor: unitSensor.Sensor;
       _sndJump: TSound;
-      _sndRoll: TSound
+      _sndRoll: TSound;
+      _sndSpinCharge: TSound;
+      _sndSpinRelease: TSound
     );
 
     function GetPosition(): TVector2;
@@ -101,11 +107,15 @@ constructor objPlayer.Create(
   _texture: TTexture2D;
   _sensor: unitSensor.Sensor;
   _sndJump: TSound;
-  _sndRoll: TSound
+  _sndRoll: TSound;
+  _sndSpinCharge: TSound;
+  _sndSpinRelease: TSound
 );
 begin
   sndJump := _sndJump;
   sndRoll := _sndRoll;
+  sndSpinCharge := _sndSpinCharge;
+  sndSpinRelease := _sndSpinRelease;
 
   sensor := _sensor;
   texture := _texture;
@@ -130,6 +140,7 @@ begin
 
   ground := False;
 
+  spinrev:=0;
   showSensors := False;
 end;
 
@@ -311,31 +322,34 @@ begin
   gsp += SlopeDecceleration();
 
   // Movement
-  if not (action = 'roll') then
+  if not (action = 'spindash') and not (action = 'lookdown') then
   begin
-    if (IsKeyDown(KEY_LEFT)) then
+    if not (action = 'roll') then
     begin
-      if (gsp > 0) then
-        gsp := gsp - DECELERATION_SPEED
-      else if (gsp > -TOP_SPEED) then
-        gsp := gsp - ACCELERATION_SPEED;
-    end
-    else if (IsKeyDown(KEY_RIGHT)) then
-    begin
-      if (gsp < 0) then
-        gsp := gsp + DECELERATION_SPEED
-      else if (gsp < TOP_SPEED) then
-        gsp := gsp + ACCELERATION_SPEED;
+      if (IsKeyDown(KEY_LEFT)) then
+      begin
+        if (gsp > 0) then
+          gsp := gsp - DECELERATION_SPEED
+        else if (gsp > -TOP_SPEED) then
+          gsp := gsp - ACCELERATION_SPEED;
+      end
+      else if (IsKeyDown(KEY_RIGHT)) then
+      begin
+        if (gsp < 0) then
+          gsp := gsp + DECELERATION_SPEED
+        else if (gsp < TOP_SPEED) then
+          gsp := gsp + ACCELERATION_SPEED;
+      end
+      else
+        gsp := gsp - min(abs(gsp), FRICTION_SPEED) * sign(gsp);
     end
     else
-      gsp := gsp - min(abs(gsp), FRICTION_SPEED) * sign(gsp);
-  end
-  else
-  begin
-    gsp := gsp - min(abs(gsp), FRICTION_SPEED / 2) * sign(gsp);
+    begin
+      gsp := gsp - min(abs(gsp), FRICTION_SPEED / 2) * sign(gsp);
+    end;
   end;
 
-  if IsKeyDown(KEY_UP) then
+  if IsKeyPressed(KEY_Z) and not (action = 'lookdown') and not (action = 'spindash') then
   begin
     xsp -= JUMP_FORCE * -sin(sensor.GetAngle());
     ysp -= JUMP_FORCE * cos(sensor.GetAngle());
@@ -352,10 +366,56 @@ begin
     if (abs(gsp) < 0.5) then
       action := 'normal'
   end
-  else if (action = 'normal') and IsKeyDown(KEY_DOWN) then
+  else if (action = 'normal') and IsKeyDown(KEY_DOWN) and (abs(gsp) >= 0.5) then
   begin
     action := 'roll';
     PlaySound(sndRoll);
+  end;
+
+  if (action = 'normal') and (IsKeyDown(KEY_DOWN)) and (gsp = 0) then
+  begin
+    action := 'lookdown';
+  end;
+
+  if (action = 'lookdown') then
+  begin
+    gsp := 0;
+
+    if not (IsKeyDown(KEY_DOWN)) then
+      action := 'normal';
+
+    if (IsKeyPressed(KEY_Z)) then
+    begin
+      action := 'spindash';
+      spinrev := 0;
+
+      PlaySound(sndSpinCharge);
+    end;
+
+  end;
+
+  if (action = 'spindash') then
+  begin
+    gsp := 0;
+
+    if (IsKeyPressed(KEY_Z)) then begin
+      spinrev += 2;
+      StopSound(sndSpinCharge);
+      PlaySound(sndSpinCharge);
+    end;
+
+
+    if not (IsKeyDown(KEY_DOWN)) then begin
+      gsp := (8 + (floor(spinrev) / 2)) * animation_direction;
+      action := 'roll';
+      StopSound(sndSpinCharge);
+      PlaySound(sndSpinRelease);
+
+    end;
+
+    if (spinrev > 8) then spinrev := 8;
+
+    spinrev -= ((floor(spinrev * 1000) div 125) / 256000);
   end;
 
   ang := sensor.GetAngle() * RAD2DEG;
@@ -366,6 +426,7 @@ begin
     ground := false;
     gsp := 0;
   end;
+
 
 end;
 
@@ -386,7 +447,7 @@ begin
     ysp := MAX_GRAVITY;
 
   // Jump height control
-  if (action = 'jump') and (ysp < -4) and (not IsKeyDown(KEY_UP)) then
+  if (action = 'jump') and (ysp < -4) and (not IsKeyDown(KEY_Z)) then
     ysp := -4;
 
   // Air Drag
@@ -450,7 +511,11 @@ begin
   else if (animation = 'roll') then
     SetAnimation(0.1 + abs(gsp / 25), 149, 153)
   else if (animation = 'spiral') then
-    SetAnimation(0.1 + abs(ysp / 50), 48, 59);
+    SetAnimation(0.1 + abs(ysp / 50), 48, 59)
+  else if (animation = 'spindash') then
+    SetAnimation(0.25, 133, 138)
+  else if (animation = 'lookdown') then
+    SetAnimation(0, 155, 155);
 
 end;
 
@@ -492,7 +557,11 @@ begin
       animation := 'spiral';
   end
   else if (action = 'jump') or (action = 'roll') then
-    animation := 'roll';
+    animation := 'roll'
+  else if (action = 'lookdown') then
+    animation := 'lookdown'
+  else if (action = 'spindash') then
+    animation := 'spindash';
 
   //Scale
   if gsp > 0 then

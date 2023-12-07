@@ -108,7 +108,12 @@ begin
     imgMaskMain, imgMaskSmall);
 
 
-  plr := objPlayer.Create(32, 32, texSonic, sensor, sndPlayerJump, sndPlayerRoll);
+  plr := objPlayer.Create(32, 32, texSonic, sensor,
+    sndPlayerJump,
+    sndPlayerRoll,
+    LoadSound('./sounds/spin-charge.wav'),
+    LoadSound('./sounds/spin-release.wav')
+  );
 
   angle := 0;
 
