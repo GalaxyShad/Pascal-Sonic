@@ -218,18 +218,23 @@ begin
     sensor.SetPosition(Vector2Create(x, y));
   end;
 
-
-  while (sensor.IsCollidingGround() and not sensor.IsCollisionMain()) do
+  if (sensor.IsCollidingGround()) then
   begin
-    x -= sin(sensor.GetAngle());
-    y += cos(sensor.GetAngle());
+    while (not sensor.IsCollisionMain()) do
+    begin
+      x -= sin(sensor.GetAngle());
+      y += cos(sensor.GetAngle());
 
-    sensor.SetPosition(Vector2Create(x, y));
+      sensor.SetPosition(Vector2Create(x, y));
+    end;
+
+    if (sensor.IsCollidingSlopeLeft()) and (sensor.IsCollidingSlopeRight()) then
+      sensor.SetAngle(sensor.CalculateAngle());
   end;
 
-  sensor.SetAngle(sensor.CalculateAngle());
-
-  if (not sensor.IsCollidingGround()) then
+  if (not sensor.IsCollidingGround()) and
+     (not sensor.IsCollidingSlopeLeft()) and
+     (not sensor.IsCollidingSlopeRight()) then
     ground := False;
 end;
 
@@ -260,6 +265,8 @@ begin
 
     Landing();
   end;
+
+  CollisionsWalls();
 end;
 
 {------------------------------------------------------------------------------}
@@ -473,7 +480,6 @@ procedure objPlayer.Draw();
 var
   degAngle: single;
   offset: TVector2;
-  ang: single;
 begin
   animationFrameRect := RectangleCreate(64 * frame, 0, 64 *
     Sign(animation_direction), 64);

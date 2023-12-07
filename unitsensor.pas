@@ -7,213 +7,222 @@ interface
 uses
   Classes, SysUtils, unitCollidebleImage, unitTerrain, raylib, raymath, Math;
 
-type Sensor = class
+type
+
+  { Sensor }
+
+  Sensor = class
   private
-     position:     TVector2;
-     angle:        Single;
+    position: TVector2;
+    angle: single;
 
-     terrain:      unitTerrain.Terrain;
+    terrain: unitTerrain.Terrain;
 
-     sensorMain:   CollidebleImage;
+    sensorMain: CollidebleImage;
 
-     sensorGround: CollidebleImage;
+    sensorGround: CollidebleImage;
 
-     sensorLeft:   CollidebleImage;
-     sensorRight:  CollidebleImage;
-     sensorTop:    CollidebleImage;
-     sensorBottom: CollidebleImage;
+    sensorLeft: CollidebleImage;
+    sensorRight: CollidebleImage;
+    sensorTop: CollidebleImage;
+    sensorBottom: CollidebleImage;
 
-     sensorSlopeLeft: CollidebleImage;
-     sensorSlopeRight: CollidebleImage;
+    sensorSlopeLeft: CollidebleImage;
+    sensorSlopeRight: CollidebleImage;
   public
-     constructor Create(
-       _terrain: unitTerrain.Terrain;
-       _position: TVector2;
-       _imgMaskMain: TImage;
-       _imgMaskSmall: TImage);
+    constructor Create(_terrain: unitTerrain.Terrain;
+      _position: TVector2; _imgMaskMain: TImage; _imgMaskSmall: TImage);
 
-     procedure SetPosition(_position: TVector2);
-     function GetPosition(): TVector2;
+    procedure SetPosition(_position: TVector2);
+    function GetPosition(): TVector2;
 
-     function GetAngle(): Single;
-     procedure SetAngle(_angle: Single);
+    function GetAngle(): single;
+    procedure SetAngle(_angle: single);
 
-     function IsCollisionMain(): Boolean;
+    function IsCollisionMain(): boolean;
 
-     function IsCollidingGround(): Boolean;
+    function IsCollidingGround(): boolean;
 
-     function IsCollidingLeft(): Boolean;
-     function IsCollidingRight(): Boolean;
-     function IsCollidingTop(): Boolean;
-     function IsCollidingBottom(): Boolean;
+    function IsCollidingLeft(): boolean;
+    function IsCollidingRight(): boolean;
+    function IsCollidingTop(): boolean;
+    function IsCollidingBottom(): boolean;
 
-     function CalculateAngle(): Single;
+    function IsCollidingSlopeLeft(): boolean;
+    function IsCollidingSlopeRight(): boolean;
 
-     procedure Draw();
-end;
+    function CalculateAngle(): single;
+
+    procedure Draw();
+  end;
 
 implementation
 
-constructor Sensor.Create(
-  _terrain: unitTerrain.Terrain;
-  _position: TVector2;
-  _imgMaskMain: TImage;
-  _imgMaskSmall: TImage);
+constructor Sensor.Create(_terrain: unitTerrain.Terrain; _position: TVector2;
+  _imgMaskMain: TImage; _imgMaskSmall: TImage);
 begin
-     terrain        := _terrain;
-     position       := _position;
-     angle          := 0;
+  terrain := _terrain;
+  position := _position;
+  angle := 0;
 
-     sensorMain     := CollidebleImage.Create(position, _imgMaskMain);
+  sensorMain := CollidebleImage.Create(position, _imgMaskMain);
 
-     sensorLeft     := CollidebleImage.Create(position, _imgMaskSmall);
-     sensorRight    := CollidebleImage.Create(position, _imgMaskSmall);
-     sensorTop      := CollidebleImage.Create(position, _imgMaskSmall);
-     sensorBottom   := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorLeft := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorRight := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorTop := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorBottom := CollidebleImage.Create(position, _imgMaskSmall);
 
-     sensorGround   := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorGround := CollidebleImage.Create(position, _imgMaskSmall);
 
-     sensorSlopeLeft := CollidebleImage.Create(position, _imgMaskSmall);
-     sensorSlopeRight := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorSlopeLeft := CollidebleImage.Create(position, _imgMaskSmall);
+  sensorSlopeRight := CollidebleImage.Create(position, _imgMaskSmall);
 
-     SetPosition(_position);
+  SetPosition(_position);
 end;
 
 procedure Sensor.SetPosition(_position: TVector2);
 begin
-     position := _position;
+  position := _position;
 
-     sensorMain.SetPosition(position);
+  sensorMain.SetPosition(position);
 
-     { Y }
-     sensorBottom.SetPosition(Vector2Create(
-         position.x - 15 * Sin(angle),
-         position.y + 15 * Cos(angle)
-     ));
+  { Y }
+  sensorBottom.SetPosition(Vector2Create(position.x - 15 *
+    Sin(angle), position.y + 15 * Cos(angle)));
 
-     sensorTop.SetPosition(Vector2Create(
-         position.x + 15 * Sin(angle),
-         position.y - 15 * Cos(angle)
-     ));
+  sensorTop.SetPosition(Vector2Create(position.x + 15 *
+    Sin(angle), position.y - 15 * Cos(angle)));
 
-     { X }
-     sensorLeft.SetPosition(Vector2Create(
-         position.x - 15 * Cos(angle),
-         position.y - 15 * Sin(angle)
-     ));
+  { X }
+  sensorLeft.SetPosition(Vector2Create(position.x - 15 *
+    Cos(angle), position.y - 15 * Sin(angle)));
 
-     sensorRight.SetPosition(Vector2Create(
-         position.x + 15 * Cos(angle),
-         position.y + 15 * Sin(angle)
-     ));
+  sensorRight.SetPosition(Vector2Create(position.x + 15 *
+    Cos(angle), position.y + 15 * Sin(angle)));
 
-     { Ground }
-     sensorGround.SetPosition(Vector2Create(
-         position.x - 24 * Sin(angle),
-         position.y + 24 * Cos(angle)
-     ));
+  { Slopes }
+  sensorSlopeRight.SetPosition(Vector2Create(position.x -
+    24 * Sin(angle) + 8 * Cos(angle), position.y + 24 * Cos(angle) +
+    8 * Sin(angle)));
+
+  sensorSlopeLeft.SetPosition(Vector2Create(position.x -
+    24 * Sin(angle) - 8 * Cos(angle), position.y + 24 * Cos(angle) -
+    8 * Sin(angle)));
+
+  { Ground }
+  sensorGround.SetPosition(Vector2Create(position.x - 24 *
+    Sin(angle), position.y + 24 * Cos(angle)));
 end;
 
 function Sensor.GetPosition(): TVector2;
 begin
-     Exit(position);
+  Exit(position);
 end;
 
-function Sensor.GetAngle(): Single;
+function Sensor.GetAngle(): single;
 begin
-     Exit(angle)
+  Exit(angle);
 end;
 
-procedure Sensor.SetAngle(_angle: Single);
+procedure Sensor.SetAngle(_angle: single);
 begin
-     angle := _angle;
-     SetPosition(position);
+  angle := _angle;
+  SetPosition(position);
 end;
 
-function Sensor.IsCollidingGround(): Boolean;
+function Sensor.IsCollidingGround(): boolean;
 begin
-     Exit(terrain.IsCollidingWith(sensorGround));
+  Exit(terrain.IsCollidingWith(sensorGround));
 end;
 
-function Sensor.IsCollisionMain(): Boolean;
+function Sensor.IsCollisionMain(): boolean;
 begin
-     Exit(terrain.IsCollidingWith(sensorMain));
+  Exit(terrain.IsCollidingWith(sensorMain));
 end;
 
-function Sensor.IsCollidingLeft(): Boolean;
+function Sensor.IsCollidingLeft(): boolean;
 begin
-    Exit(terrain.IsCollidingWith(sensorLeft));
+  Exit(terrain.IsCollidingWith(sensorLeft));
 end;
 
-function Sensor.IsCollidingRight(): Boolean;
+function Sensor.IsCollidingRight(): boolean;
 begin
-    Exit(terrain.IsCollidingWith(sensorRight));
+  Exit(terrain.IsCollidingWith(sensorRight));
 end;
 
-function Sensor.IsCollidingTop(): Boolean;
+function Sensor.IsCollidingTop(): boolean;
 begin
-    Exit(terrain.IsCollidingWith(sensorTop));
+  Exit(terrain.IsCollidingWith(sensorTop));
 end;
 
-function Sensor.IsCollidingBottom(): Boolean;
+function Sensor.IsCollidingBottom(): boolean;
 begin
-    Exit(terrain.IsCollidingWith(sensorBottom));
+  Exit(terrain.IsCollidingWith(sensorBottom));
 end;
 
-function Sensor.CalculateAngle(): Single;
+function Sensor.IsCollidingSlopeLeft: boolean;
+begin
+  Exit(terrain.IsCollidingWith(sensorSlopeLeft));
+end;
+
+function Sensor.IsCollidingSlopeRight: boolean;
+begin
+  Exit(terrain.IsCollidingWith(sensorSlopeRight));
+end;
+
+function Sensor.CalculateAngle(): single;
 var
   i: integer;
+  pointLeft, pointRight: TVector2;
   foundLeft, foundRight: boolean;
 begin
+  foundLeft := False;
+  foundRight := False;
 
-    foundLeft := false;
-    foundRight := false;
+  for i := 0 to 30 do
+  begin
+    if (not foundRight) then
+    begin
+      pointRight := Vector2Create(position.x - (10 + i) *
+        Sin(angle) + 8 * Cos(angle), position.y + (10 + i) *
+        Cos(angle) + 8 * Sin(angle));
 
-    for i := 0 to 20 do begin
-       if (not foundRight) then begin
-         sensorSlopeRight.SetPosition(Vector2Create(
-             position.x - (10+i) * Sin(angle) + 8 * Cos(angle),
-             position.y + (10+i) * Cos(angle) + 8 * Sin(angle)
-         ));
-
-         if (terrain.IsCollidingWith(sensorSlopeRight)) then foundRight := true;
-       end;
-
-       if (not foundLeft) then begin
-         sensorSlopeLeft.SetPosition(Vector2Create(
-             position.x - (10+i) * Sin(angle) - 8 * Cos(angle),
-             position.y + (10+i) * Cos(angle) - 8 * Sin(angle)
-         ));
-
-         if (terrain.IsCollidingWith(sensorSlopeLeft)) then foundLeft := true;
-       end;
+      if (terrain.IsCollidingWithPoint(pointRight)) then foundRight := True;
     end;
 
-    if (foundLeft and foundRight) then begin
-      Exit(ArcTan2(
-       sensorSlopeRight.GetPosition().y - sensorSlopeLeft.GetPosition().y,
-       sensorSlopeRight.GetPosition().x - sensorSlopeLeft.GetPosition().x
-      ))
-    end;
+    if (not foundLeft) then
+    begin
+      pointLeft := Vector2Create(position.x - (10 + i) *
+        Sin(angle) - 8 * Cos(angle), position.y + (10 + i) *
+        Cos(angle) - 8 * Sin(angle));
 
-    Exit(angle);
+      if (terrain.IsCollidingWithPoint(pointLeft)) then foundLeft := True;
+    end;
+  end;
+
+  if (foundLeft and foundRight) then
+  begin
+    Exit(ArcTan2(pointRight.y - pointLeft.y, pointRight.x -
+      pointLeft.x));
+  end;
+
+  Exit(angle);
 
 end;
 
 procedure Sensor.Draw();
 begin
-    sensorMain.Draw();
+  sensorMain.Draw();
 
-    sensorGround.Draw();
+  sensorGround.Draw();
 
-    sensorLeft.Draw();
-    sensorRight.Draw();
-    sensorTop.Draw();
-    sensorBottom.Draw();
+  sensorLeft.Draw();
+  sensorRight.Draw();
+  sensorTop.Draw();
+  sensorBottom.Draw();
 
-    sensorSlopeLeft.Draw();
-    sensorSlopeRight.Draw();
+  sensorSlopeLeft.Draw();
+  sensorSlopeRight.Draw();
 end;
 
 end.
-
