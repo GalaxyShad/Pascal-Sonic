@@ -85,6 +85,7 @@ begin
 
      sensorMain.SetPosition(position);
 
+     { Y }
      sensorBottom.SetPosition(Vector2Create(
          position.x - 20 * Sin(angle),
          position.y + 20 * Cos(angle)
@@ -95,6 +96,7 @@ begin
          position.y - 20 * Cos(angle)
      ));
 
+     { X }
      sensorLeft.SetPosition(Vector2Create(
          position.x - 20 * Cos(angle),
          position.y - 20 * Sin(angle)
@@ -105,7 +107,7 @@ begin
          position.y + 20 * Sin(angle)
      ));
 
-
+     { Ground }
      sensorGround.SetPosition(Vector2Create(
          position.x - 30 * Sin(angle),
          position.y + 30 * Cos(angle)

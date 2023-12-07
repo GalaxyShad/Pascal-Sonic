@@ -5,12 +5,9 @@ unit Player;
 interface
 
 uses
-  Classes, Math, raylib, fgl, unitSensor;
+  Classes, Math, raylib, unitSensor;
 
 type
-
-  { objPlayer }
-
   objPlayer = class
   const
     AIR_ACCELERATION_SPEED    = 0.09375;
@@ -64,6 +61,8 @@ type
 
     procedure ApplyAnimation();
     procedure SetAnimation(sp_frame: real; f_frame, l_frame: integer);
+
+    function SlopeDecceleration: single;
 
   public
     constructor Create(_x: integer; _y: integer; _texture: TTexture2D;
@@ -172,7 +171,8 @@ begin
 
   sensor.SetAngle(sensor.CalculateAngle());
 
-  if (not sensor.IsCollidingGround()) then ground := False;
+  if (not sensor.IsCollidingGround()) then
+    ground := False;
 end;
 
 procedure objPlayer.CollisionsAir;
@@ -207,32 +207,54 @@ end;
 {------------------------------------------------------------------------------}
 {------------------------------------------------------------------------------}
 
+function objPlayer.SlopeDecceleration: single;
+var sinAngle: single;
+begin
+  sinAngle := sin(sensor.GetAngle());
+
+  if action = 'roll' then
+  begin
+    if (sign(gsp) <> sign(sinAngle)) then
+      Exit(SLOPE_FACTOR_ROLLUP * sinAngle)
+    else
+      Exit(SLOPE_FACTOR_ROLLDOWN * sinAngle);
+  end;
+
+  Exit(SLOPE_FACTOR_NORMAL * sinAngle);
+end;
+
 procedure objPlayer.MovementGround;
 begin
   if not ground then Exit();
 
-  // Slope decceleration
-  gsp += SLOPE_FACTOR_NORMAL * sin(sensor.GetAngle());
+  gsp += SlopeDecceleration();
 
   // Movement
-  if (IsKeyDown(KEY_LEFT)) then
+  if not (action = 'roll') then
   begin
-    if (gsp > 0) then
-      gsp := gsp - DECELERATION_SPEED
-    else if (gsp > -TOP_SPEED) then
-      gsp := gsp - ACCELERATION_SPEED;
-  end
-  else if (IsKeyDown(KEY_RIGHT)) then
-  begin
-    if (gsp < 0) then
-      gsp := gsp + DECELERATION_SPEED
-    else if (gsp < TOP_SPEED) then
-      gsp := gsp + ACCELERATION_SPEED;
+    if (IsKeyDown(KEY_LEFT)) then
+    begin
+      if (gsp > 0) then
+        gsp := gsp - DECELERATION_SPEED
+      else if (gsp > -TOP_SPEED) then
+        gsp := gsp - ACCELERATION_SPEED;
+    end
+    else if (IsKeyDown(KEY_RIGHT)) then
+    begin
+      if (gsp < 0) then
+        gsp := gsp + DECELERATION_SPEED
+      else if (gsp < TOP_SPEED) then
+        gsp := gsp + ACCELERATION_SPEED;
+    end
+    else
+      gsp := gsp - min(abs(gsp), FRICTION_SPEED) * sign(gsp);
   end
   else
-    gsp := gsp - min(abs(gsp), FRICTION_SPEED) * sign(gsp);
+  begin
+    gsp := gsp - min(abs(gsp), FRICTION_SPEED / 2) * sign(gsp);
+  end;
 
-  if (ground) and (IsKeyDown(KEY_UP)) then
+  if IsKeyDown(KEY_UP) then
   begin
     xsp -= JUMP_FORCE * -sin(sensor.GetAngle());
     ysp -= JUMP_FORCE * cos(sensor.GetAngle());
@@ -240,6 +262,16 @@ begin
     action := 'jump';
 
     ground := False;
+  end;
+
+  if (action = 'roll') then
+  begin
+    if (abs(gsp) < 0.5) then
+      action := 'normal'
+  end
+  else if (action = 'normal') and IsKeyDown(KEY_DOWN) then
+  begin
+    action := 'roll'
   end;
 
 end;
@@ -303,9 +335,6 @@ begin
   xsp := 0.0;
   ysp := 0.0;
 
-  //===X Values===//
-
-  //===Y Values===//
   ground := False;
 
   showSensors := False;
@@ -336,7 +365,7 @@ begin
     SetAnimation(0.1 + abs(gsp / 25), 0, 6)
   else if (animation = 'run') then
     SetAnimation(0.1 + abs(gsp / 25), 32, 35)
-  else if (animation = 'jump') then
+  else if (animation = 'roll') then
     SetAnimation(0.1 + abs(gsp / 25), 149, 153);
 
 end;
@@ -373,7 +402,8 @@ begin
     else
       animation := 'run';
   end
-  else if (action = 'jump') then animation := 'jump';
+  else if (action = 'jump') or (action = 'roll') then
+    animation := 'roll';
 
   //Scale
   if gsp > 0 then
