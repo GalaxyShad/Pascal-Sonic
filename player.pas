@@ -8,6 +8,9 @@ uses
   Classes, Math, raylib, unitSensor;
 
 type
+
+  { objPlayer }
+
   objPlayer = class
   const
     AIR_ACCELERATION_SPEED    = 0.09375;
@@ -78,6 +81,8 @@ type
     );
 
     function GetPosition(): TVector2;
+    function GetGrounded(): Boolean;
+    function GetGsp(): Single;
 
     procedure Update();
     procedure Draw();
@@ -367,6 +372,16 @@ end;
 function objPlayer.GetPosition(): TVector2;
 begin
   Exit(Vector2Create(x, y));
+end;
+
+function objPlayer.GetGrounded: Boolean;
+begin
+   Exit(ground);
+end;
+
+function objPlayer.GetGsp: Single;
+begin
+  Exit(gsp);
 end;
 
 procedure objPlayer.SetAnimation(sp_frame: real; f_frame, l_frame: integer);

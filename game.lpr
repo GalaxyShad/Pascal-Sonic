@@ -5,6 +5,7 @@ program game;
 uses
   Player,
   cmem,
+  math,
   unitCollidebleImage,
   raylib,
   unitTerrain,
@@ -35,6 +36,42 @@ const
   screenHeight = 240;
 
 {$R *.res}
+
+procedure CameraUpdate();
+var left, right, top, bottom, px, py: single;
+begin
+  left := camera.target.x - 16;
+  right := camera.target.x;
+  top := camera.target.y - 32;
+  bottom := camera.target.y + 32;
+
+  px := plr.GetPosition().x;
+  py := plr.GetPosition().y;
+
+  if px >= right then
+    camera.target.x += min(px - right, 16);
+
+  if px <= left then
+    camera.target.x += max(px - left, -16);
+
+  if plr.GetGrounded() then
+  begin
+    if abs(plr.GetGsp()) <= 8 then
+      camera.target.y += min(max(py - camera.target.y, -6), 6)
+    else
+      camera.target.y += min(max(py - camera.target.y, -16), 16);
+  end
+  else
+  begin
+    if py >= bottom then
+      camera.target.y += min(py - bottom, 16);
+
+    if py <= top then
+      camera.target.y += max(py - top, -16);
+  end;
+
+  //camera.target := plr.GetPosition();
+end;
 
 begin
   // Initialization
@@ -86,9 +123,11 @@ begin
 
     plr.Update();
 
+    CameraUpdate();
+
     camera.offset := Vector2Create(GetRenderWidth() / 2, GetRenderHeight() / 2);
     camera.zoom := GetRenderWidth() / 420;
-    camera.target := plr.GetPosition();
+
 
     mpos := GetMousePosition();
     pinkStar.SetPosition(mpos);
