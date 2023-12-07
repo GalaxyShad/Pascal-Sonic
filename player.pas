@@ -40,12 +40,14 @@ type
     animationAngle: single;
     animation: string;
     action: string;
+
     // Frame
     frame: integer;
     float_frame: real;
 
     // Player Movement Variables
     x, y, xsp, ysp, gsp: single;
+
     // ==Y== //
     ground: boolean;
 
@@ -302,6 +304,7 @@ begin
 end;
 
 procedure objPlayer.MovementGround;
+var ang: single;
 begin
   if not ground then Exit();
 
@@ -355,6 +358,15 @@ begin
     PlaySound(sndRoll);
   end;
 
+  ang := sensor.GetAngle() * RAD2DEG;
+  if (ang < 0) then ang += 360;
+
+  if (abs(gsp) < 2.5) and (InRange(ang, 46, 315)) then
+  begin
+    ground := false;
+    gsp := 0;
+  end;
+
 end;
 
 procedure objPlayer.MovementAir;
@@ -372,6 +384,14 @@ begin
 
   if (ysp > MAX_GRAVITY) then
     ysp := MAX_GRAVITY;
+
+  // Jump height control
+  if (action = 'jump') and (ysp < -4) and (not IsKeyDown(KEY_UP)) then
+    ysp := -4;
+
+  // Air Drag
+  if (ysp < 0) and (ysp > -4) then
+    xsp -= ((floor(xsp * 1000) div 125) / 256000)
 
 end;
 
@@ -428,7 +448,9 @@ begin
   else if (animation = 'run') then
     SetAnimation(0.1 + abs(gsp / 25), 32, 35)
   else if (animation = 'roll') then
-    SetAnimation(0.1 + abs(gsp / 25), 149, 153);
+    SetAnimation(0.1 + abs(gsp / 25), 149, 153)
+  else if (animation = 'spiral') then
+    SetAnimation(0.1 + abs(ysp / 50), 48, 59);
 
 end;
 
@@ -457,12 +479,17 @@ begin
   //Anim
   if (action = 'normal') then
   begin
-    if gsp = 0 then
-      animation := 'idle'
-    else if (abs(gsp) > 0) and (abs(gsp) < 6) then
-      animation := 'walking'
+    if ground then
+    begin
+      if gsp = 0 then
+        animation := 'idle'
+      else if (abs(gsp) > 0) and (abs(gsp) < 6) then
+        animation := 'walking'
+      else
+        animation := 'run';
+    end
     else
-      animation := 'run';
+      animation := 'spiral';
   end
   else if (action = 'jump') or (action = 'roll') then
     animation := 'roll';
