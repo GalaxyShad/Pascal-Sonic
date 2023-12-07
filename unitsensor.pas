@@ -87,30 +87,30 @@ begin
 
      { Y }
      sensorBottom.SetPosition(Vector2Create(
-         position.x - 20 * Sin(angle),
-         position.y + 20 * Cos(angle)
+         position.x - 15 * Sin(angle),
+         position.y + 15 * Cos(angle)
      ));
 
      sensorTop.SetPosition(Vector2Create(
-         position.x + 20 * Sin(angle),
-         position.y - 20 * Cos(angle)
+         position.x + 15 * Sin(angle),
+         position.y - 15 * Cos(angle)
      ));
 
      { X }
      sensorLeft.SetPosition(Vector2Create(
-         position.x - 20 * Cos(angle),
-         position.y - 20 * Sin(angle)
+         position.x - 15 * Cos(angle),
+         position.y - 15 * Sin(angle)
      ));
 
      sensorRight.SetPosition(Vector2Create(
-         position.x + 20 * Cos(angle),
-         position.y + 20 * Sin(angle)
+         position.x + 15 * Cos(angle),
+         position.y + 15 * Sin(angle)
      ));
 
      { Ground }
      sensorGround.SetPosition(Vector2Create(
-         position.x - 30 * Sin(angle),
-         position.y + 30 * Cos(angle)
+         position.x - 24 * Sin(angle),
+         position.y + 24 * Cos(angle)
      ));
 end;
 
@@ -172,8 +172,8 @@ begin
     for i := 0 to 20 do begin
        if (not foundRight) then begin
          sensorSlopeRight.SetPosition(Vector2Create(
-             position.x - (15+i) * Sin(angle) + 8 * Cos(angle),
-             position.y + (15+i) * Cos(angle) + 8 * Sin(angle)
+             position.x - (10+i) * Sin(angle) + 8 * Cos(angle),
+             position.y + (10+i) * Cos(angle) + 8 * Sin(angle)
          ));
 
          if (terrain.IsCollidingWith(sensorSlopeRight)) then foundRight := true;
@@ -181,8 +181,8 @@ begin
 
        if (not foundLeft) then begin
          sensorSlopeLeft.SetPosition(Vector2Create(
-             position.x - (15+i) * Sin(angle) - 8 * Cos(angle),
-             position.y + (15+i) * Cos(angle) - 8 * Sin(angle)
+             position.x - (10+i) * Sin(angle) - 8 * Cos(angle),
+             position.y + (10+i) * Cos(angle) - 8 * Sin(angle)
          ));
 
          if (terrain.IsCollidingWith(sensorSlopeLeft)) then foundLeft := true;

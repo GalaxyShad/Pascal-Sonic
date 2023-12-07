@@ -69,8 +69,6 @@ begin
     if py <= top then
       camera.target.y += max(py - top, -16);
   end;
-
-  //camera.target := plr.GetPosition();
 end;
 
 begin

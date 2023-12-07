@@ -5,7 +5,7 @@ unit Player;
 interface
 
 uses
-  Classes, Math, raylib, unitSensor;
+  Classes, Math, raylib, raymath, unitSensor;
 
 type
 
@@ -37,6 +37,7 @@ type
 
     // Animation
     animation_direction: integer;
+    animationAngle: single;
     animation: string;
     action: string;
     // Frame
@@ -69,6 +70,8 @@ type
     procedure SetAnimation(sp_frame: real; f_frame, l_frame: integer);
 
     function SlopeDecceleration: single;
+
+    function AngleDifference(a: single; b: single): single;
 
   public
     constructor Create(
@@ -278,6 +281,19 @@ begin
   Exit(SLOPE_FACTOR_NORMAL * sinAngle);
 end;
 
+function objPlayer.AngleDifference(a: single; b: single): single;
+begin
+  AngleDifference := a - b;
+
+  if AngleDifference > 180 then
+    AngleDifference -= 360;
+
+  if AngleDifference < -180 then
+    AngleDifference += 360;
+
+  Exit(AngleDifference);
+end;
+
 procedure objPlayer.MovementGround;
 begin
   if not ground then Exit();
@@ -454,12 +470,41 @@ begin
 end;
 
 procedure objPlayer.Draw();
+var
+  degAngle: single;
+  offset: TVector2;
+  ang: single;
 begin
   animationFrameRect := RectangleCreate(64 * frame, 0, 64 *
     Sign(animation_direction), 64);
 
+  if (animation = 'roll') then
+    offset := Vector2Create(32, 32)
+  else
+    offset := Vector2Create(32, 38);
+
+  degAngle := sensor.GetAngle() * RAD2DEG;
+  if (degAngle < 0) then degAngle += 360;
+
+
+  if animation = 'roll' then
+    animationAngle := 0
+  else
+  begin
+    if (not ground) then
+      animationAngle += AngleDifference(0, animationAngle) / 10.0
+    else
+    begin
+
+      if (degAngle >= 35) and (degAngle <= 325) then
+        animationAngle += AngleDifference(degAngle, animationAngle) / 4.0
+      else
+        animationAngle += AngleDifference(0, animationAngle) / 4.0;
+    end;
+  end;
+
   DrawTexturePro(texture, animationFrameRect, RectangleCreate(x, y, 64, 64),
-    Vector2Create(32, 32), sensor.GetAngle() * RAD2DEG, WHITE);
+    offset, animationAngle, WHITE);
 
   if (IsKeyPressed(KEY_D)) then showSensors := not showSensors;
 
