@@ -10,6 +10,7 @@
 You can download a pre-built version of the game from the [Releases Section](https://github.com/GalaxyShad/Pascal-Sonic/releases). Alternatively, you can build it yourself by following the instructions below.
 
 ## How to build?
+### Lazarus IDE
 1. Clone this repository:
    ```
    git clone https://github.com/GalaxyShad/Pascal-Sonic.git
@@ -17,6 +18,11 @@ You can download a pre-built version of the game from the [Releases Section](htt
 3. Download the runtime libraries from [RayLib](https://www.raylib.com/) and place them in the root directory of the project.
 4. Install [Lazarus IDE](https://www.lazarus-ide.org/).
 5. Open the project in Lazarus IDE and build it.
+
+### FPC
+```
+fpc -MOBJFPC game.lpr -Fu"ray4laz/source"
+```
 
 ## Dependencies
 * [RayLib](https://www.raylib.com/)

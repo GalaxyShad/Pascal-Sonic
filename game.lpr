@@ -35,8 +35,6 @@ const
   screenWidth = 426;
   screenHeight = 240;
 
-{$R *.res}
-
 procedure CameraUpdate();
 var left, right, top, bottom, px, py: single;
 begin
