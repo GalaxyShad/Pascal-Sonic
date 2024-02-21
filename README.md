@@ -20,9 +20,16 @@ You can download a pre-built version of the game from the [Releases Section](htt
 5. Open the project in Lazarus IDE and build it.
 
 ### FPC
+1. Make sure that you have [FPC](https://www.freepascal.org/download.html) installed
+2. Clone this repository:
+```
+git clone --recurse-submodules -j8 https://github.com/GalaxyShad/Pascal-Sonic.git && cd Pascal-Sonic
+```
+3. Compile:
 ```
 fpc -MOBJFPC game.lpr -Fu"ray4laz/source"
 ```
+4. (if you on Windows) copy dlls from `ray4laz/libs` for your platform
 
 ## Dependencies
 * [RayLib](https://www.raylib.com/)
