@@ -1,6 +1,6 @@
 program game;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$LINKLIB raylib} 
 
 uses
   Player,
@@ -126,7 +126,7 @@ begin
 
     CameraUpdate();
 
-    camera.offset := Vector2Create(GetRenderWidth() / 2, GetRenderHeight() / 2);
+    camera.offset := Vector2Create(GetRenderWidth() /4, GetRenderHeight() /4);
     camera.zoom := GetRenderWidth() / 420;
 
 
