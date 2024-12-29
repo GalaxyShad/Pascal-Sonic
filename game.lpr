@@ -17,13 +17,20 @@ var
   plr: objPlayer;
   terrain: unitTerrain.Terrain;
   pinkStar: CollidebleImage;
+
+  noiseImage: TImage;
+  noiseCollidable: CollidebleImage;
+  noiseTexture: TTexture2D;
+
   mpos: TVector2;
+
+
   sensor: unitSensor.Sensor;
   angle: real;
 
   camera: TCamera2D;
 
-  i: integer;
+  i, j: integer;
 
   imgBlock: TImage;
   imgMaskMain: TImage;
@@ -69,6 +76,25 @@ begin
   end;
 end;
 
+function GenerateTerrainChunk(width, height, offsetX, offsetY: Integer): TImage;
+var img: TImage;
+var i, j: Integer;
+begin
+  img := GenImagePerlinNoise(width, height, offsetX, offsetY, 1);
+
+  for i := 0 to img.height - 1 do begin
+    for j := 0 to img.width - 1 do begin
+      if GetImageColor(img, j, i).r < 90 then 
+        ImageDrawPixel(@img, j, i, GetColor($AAFF00FF))
+      else 
+        ImageDrawPixel(@img, j, i, GetColor($0))
+    end;
+  end;
+
+  Result := img;
+end;
+
+
 begin
   // Initialization
   InitWindow(screenWidth, screenHeight, 'Pascal Sonic');
@@ -99,8 +125,23 @@ begin
 
   terrain := unitTerrain.Terrain.Create;
 
-  terrain.Add(CollidebleImage.Create(Vector2Create(1024, 1024),
-    LoadImage('./textures/big-lvl.png')));
+  
+  noiseImage := GenerateTerrainChunk(8192, 8192, 0, 0);
+  noiseTexture := LoadTextureFromImage(noiseImage);
+
+  // for i := 0 to 100 do begin
+  //   for j := 0 to 1 do begin
+  //     noiseImage := GenerateTerrainChunk(512, 512, 512 * i, 512 * j);
+  //     terrain.Add(CollidebleImage.Create(Vector2Create(i * 512, j * 512), noiseImage));
+  //   end;
+  // end;
+
+  terrain.Add(
+    CollidebleImage.Create(Vector2Create(8192 / 2, 256), 
+    noiseImage)
+  );
+
+    // LoadImage('./textures/big-lvl.png')));
 
   sensor := unitSensor.Sensor.Create(terrain, Vector2Create(64, 64),
     imgMaskMain, imgMaskSmall);
@@ -118,6 +159,8 @@ begin
   pinkStar := CollidebleImage.Create(Vector2Create(screenWidth / 2, screenHeight / 2),
     LoadImage('./textures/pink-star.png'));
 
+  noiseCollidable := CollidebleImage.Create(Vector2Create(screenWidth / 2, screenHeight / 2), noiseImage);
+
   // Main game loop
   while not WindowShouldClose() do
   begin
@@ -126,9 +169,9 @@ begin
 
     CameraUpdate();
 
-    camera.offset := Vector2Create(GetRenderWidth() /4, GetRenderHeight() /4);
-    camera.zoom := GetRenderWidth() / 420;
-
+    camera.offset := Vector2Create(GetRenderWidth() / 4, GetRenderHeight() / 4);
+    camera.zoom := 0.2;
+    // camera.zoom := GetRenderWidth() / 420;
 
     mpos := GetMousePosition();
     pinkStar.SetPosition(mpos);
@@ -146,15 +189,18 @@ begin
         terrain.Draw();
         plr.Draw();
         pinkStar.Draw();
+        
 
         if (terrain.IsCollidingWith(pinkStar)) then
           DrawCircleV(mpos, 8, GREEN)
         else
           DrawCircleV(mpos, 8, RED);
+
+
       EndMode2D();
 
       DrawFPS(32, 32);
-    //DrawText('raylib in lazarus !!!', 20, 20, 10, DARKGRAY);
+      DrawTextureEx(noiseTexture, Vector2Create(0, 0), 0, 0.005, YELLOW);
     {---------------------------------------------------------------------}
 
     EndDrawing();
